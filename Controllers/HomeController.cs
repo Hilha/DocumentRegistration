@@ -22,7 +22,7 @@ namespace DocumentRegistration.Controllers
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
+            ViewBag.Message = "Informações:";
 
             return View();
         }
