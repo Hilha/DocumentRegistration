@@ -14,31 +14,31 @@ namespace DocumentRegistration
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
-                name: "Document",
+                name: "DocumentDelete",
                 url: "document/delete/{id}",
                 defaults: new { controller = "Document", action = "Delete", id = UrlParameter.Optional }
             );
 
             routes.MapRoute(
-                name: "Document",
+                name: "DocumentDetails",
                 url: "document/details/{id}",
                 defaults: new { controller = "Document", action = "Details", id = UrlParameter.Optional }
             );
 
             routes.MapRoute(
-                name: "Document",
+                name: "DocumentEdit",
                 url: "document/edit/{id}",
                 defaults: new { controller = "Document", action = "Edit", id = UrlParameter.Optional }
             );
 
             routes.MapRoute(
-                name: "Document",
+                name: "DocumentCreate",
                 url: "document/create",
                 defaults: new { controller = "Document", action = "Create", id = UrlParameter.Optional }
             );
 
             routes.MapRoute(
-                name: "Document",
+                name: "Documents",
                 url: "documents",
                 defaults: new { controller = "Document", action = "Index", id = UrlParameter.Optional }
             );
