@@ -1,12 +1,10 @@
-﻿using System;
+﻿using DocumentRegistration.Models;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Services.Description;
-using DocumentRegistration.Models;
-using System.IO;
-using System.Configuration;
 
 
 namespace DocumentRegistration.Controllers
@@ -66,7 +64,7 @@ namespace DocumentRegistration.Controllers
                         return View();
                     }
 
-                    
+
 
                     //Get Name and Extension of posted file
                     var UploadedFileName = Path.GetFileName(PostedFile.FileName);
@@ -94,7 +92,7 @@ namespace DocumentRegistration.Controllers
                     TempData["Error"] = "Tente novamente.";
                     return View();
                 }
-                
+
             }
             else
             {
@@ -139,7 +137,8 @@ namespace DocumentRegistration.Controllers
                         var UploadedFilePath = Path.Combine(Server.MapPath("~/App_Data/Files"), UploadedFileName);
                         PostedFile.SaveAs(UploadedFilePath);
                         Document.FilePath = UploadedFilePath;
-                    }else
+                    }
+                    else
                     {
                         Document.FilePath = oldDocument.FilePath;
                     }
@@ -203,5 +202,5 @@ namespace DocumentRegistration.Controllers
         }
     }
 
-    
+
 }
