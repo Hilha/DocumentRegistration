@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-
+//using DocumentRegistration.DAL;
 
 namespace DocumentRegistration.Controllers
 {
@@ -50,39 +50,45 @@ namespace DocumentRegistration.Controllers
             {
                 try
                 {
+                    //using (var context = new DocumentContext())
+                    //{
+                            if (PostedFile == null)
+                        {
+                            TempData["Error"] = "Arquivo ausente";
+                            return View();
+                        }
 
-                    if (PostedFile == null)
-                    {
-                        TempData["Error"] = "Arquivo ausente";
-                        return View();
-                    }
+                        if (!FileExtensionIsValid(PostedFile))
+                        {
+                            TempData["Error"] = "Arquivo invalido";
 
-                    if (!FileExtensionIsValid(PostedFile))
-                    {
-                        TempData["Error"] = "Arquivo invalido";
-
-                        return View();
-                    }
+                            return View();
+                        }
 
 
 
-                    //Get Name and Extension of posted file
-                    var UploadedFileName = Path.GetFileName(PostedFile.FileName);
-                    var UploadedFileExtension = Path.GetExtension(PostedFile.FileName);
-                    UploadedFileName = UploadedFileName.Trim() + UploadedFileExtension;
-                    var UploadedFilePath = Path.Combine(Server.MapPath("~/App_Data/Files"), UploadedFileName);
+                        //Get Name and Extension of posted file
+                        var UploadedFileName = Path.GetFileName(PostedFile.FileName);
+                        var UploadedFileExtension = Path.GetExtension(PostedFile.FileName);
+                        UploadedFileName = UploadedFileName.Trim() + UploadedFileExtension;
+                        var UploadedFilePath = Path.Combine(Server.MapPath("~/App_Data/Files"), UploadedFileName);
 
-                    DocumentModel Document = new DocumentModel
-                    {
-                        Category = Collection["Category"],
-                        Title = Collection["Title"],
-                        Process = Collection["Process"],
-                        Code = Int32.Parse(Collection["Code"]),
-                        FilePath = UploadedFilePath
-                    };
+                        DocumentModel Document = new DocumentModel
+                        {
+                            Category = Collection["Category"],
+                            Title = Collection["Title"],
+                            Process = Collection["Process"],
+                            Code = Int32.Parse(Collection["Code"]),
+                            FilePath = UploadedFilePath
+                        };
 
-                    documentList.Add(Document);
-                    PostedFile.SaveAs(UploadedFilePath);
+                        //context.Documents.Add(Document);
+                        //context.SaveChanges();
+                        PostedFile.SaveAs(UploadedFilePath);
+
+                  //  }
+
+                    //documentList.Add(Document);
 
                     TempData["Success"] = "Documento cadastrado!";
                     return RedirectToAction("Index");

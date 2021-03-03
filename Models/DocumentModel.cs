@@ -1,11 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Web;
 
 
 
 namespace DocumentRegistration.Models
 {
-    public class DocumentModel
+    [Table("Document")]
+    public partial class DocumentModel
     {
         [Key]
         public long Id { get; set; }
@@ -29,6 +31,7 @@ namespace DocumentRegistration.Models
         [Display(Name = "Arquivo")]
         public string FilePath { get; set; }
 
+        [NotMapped]
         public HttpPostedFileBase File { get; set; }
     }
 }
