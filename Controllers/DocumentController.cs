@@ -1,37 +1,42 @@
-﻿using DocumentRegistration.Models;
+﻿using DocumentRegistration.DAL;
+using DocumentRegistration.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-//using DocumentRegistration.DAL;
 
 namespace DocumentRegistration.Controllers
 {
     public class DocumentController : Controller
     {
-
-        static IList<DocumentModel> documentList = new List<DocumentModel>
-        {
-            new DocumentModel() {Id = 1, Title = "Teste1", Code = 12345, Process = "process1", Category = "Support"},
-            new DocumentModel() {Id = 2, Title = "Teste2", Code = 12345, Process = "process2", Category = "Delopment"},
-            new DocumentModel() {Id = 3, Title = "Teste3", Code = 12345, Process = "process3", Category = "Test"},
-            new DocumentModel() {Id = 4, Title = "Teste4", Code = 12345, Process = "process4", Category = "Call"}
-        };
-
         // GET: Documents
         public ActionResult Index()
         {
-            return View(documentList);
+            using (var Context = new DocumentContext())
+            {
+                var Documents = Context.DocumentModel.ToList();
+                var DocumentsInAlfabeticOrder = Documents.OrderBy(d => d.Title);
+
+                return View(DocumentsInAlfabeticOrder);
+            }
         }
 
         // GET: Document/Details/5
         public ActionResult Details(long Id)
         {
-            var document = documentList.Where(d => d.Id == Id).FirstOrDefault();
+            using (var Context = new DocumentContext())
+            {
+                var Document = Context.DocumentModel.Where(x => x.Id == Id).SingleOrDefault();
 
-            return View(document);
+                if (Document == null)
+                {
+                    TempData["Error"] = "Documento inexistente!";
+                    return RedirectToAction("Index");
+                }
+
+                return View(Document);
+            }
         }
 
         // GET: Document/Create
@@ -40,19 +45,17 @@ namespace DocumentRegistration.Controllers
             return View();
         }
 
-
         // POST: Document/Create
         [HttpPost]
         public ActionResult Create(FormCollection Collection, HttpPostedFileBase PostedFile)
         {
-
             if (ModelState.IsValid)
             {
                 try
                 {
-                    //using (var context = new DocumentContext())
-                    //{
-                            if (PostedFile == null)
+                    using (var Context = new DocumentContext())
+                    {
+                        if (PostedFile == null)
                         {
                             TempData["Error"] = "Arquivo ausente";
                             return View();
@@ -65,30 +68,14 @@ namespace DocumentRegistration.Controllers
                             return View();
                         }
 
+                        DocumentModel Document = new DocumentModel();
 
+                        LoadAndSaveDocumentFile(Document, PostedFile);
+                        UpdateDocumentData(Document, Collection);
 
-                        //Get Name and Extension of posted file
-                        var UploadedFileName = Path.GetFileName(PostedFile.FileName);
-                        var UploadedFileExtension = Path.GetExtension(PostedFile.FileName);
-                        UploadedFileName = UploadedFileName.Trim() + UploadedFileExtension;
-                        var UploadedFilePath = Path.Combine(Server.MapPath("~/App_Data/Files"), UploadedFileName);
-
-                        DocumentModel Document = new DocumentModel
-                        {
-                            Category = Collection["Category"],
-                            Title = Collection["Title"],
-                            Process = Collection["Process"],
-                            Code = Int32.Parse(Collection["Code"]),
-                            FilePath = UploadedFilePath
-                        };
-
-                        //context.Documents.Add(Document);
-                        //context.SaveChanges();
-                        PostedFile.SaveAs(UploadedFilePath);
-
-                  //  }
-
-                    //documentList.Add(Document);
+                        Context.DocumentModel.Add(Document);
+                        Context.SaveChanges();
+                    }
 
                     TempData["Success"] = "Documento cadastrado!";
                     return RedirectToAction("Index");
@@ -111,49 +98,55 @@ namespace DocumentRegistration.Controllers
         // GET: Document/Edit/5
         public ActionResult Edit(long Id)
         {
-            var document = documentList.Where(d => d.Id == Id).FirstOrDefault();
+            using (var Context = new DocumentContext())
+            {
+                var Document = Context.DocumentModel.Where(x => x.Id == Id).SingleOrDefault();
 
-            return View(document);
+                if (Document == null)
+                {
+                    TempData["Error"] = "Documento Inexistente!";
+                    return RedirectToAction("Index");
+                }
+
+                return View(Document);
+            }
         }
 
         // POST: Document/Edit/5
         [HttpPost]
-        public ActionResult Edit(DocumentModel Document, FormCollection Collection, HttpPostedFileBase PostedFile)
+        public ActionResult Edit(long Id, DocumentModel Document, FormCollection Collection, HttpPostedFileBase PostedFile)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    //update student in DB using EntityFramework in real-life application
-                    //update list by removing old student and adding updated student for demo purpose
-
-                    var oldDocument = documentList.Where(d => d.Id == Document.Id).FirstOrDefault();
-
-                    if (PostedFile != null)
+                    using (var Context = new DocumentContext())
                     {
-                        if (!FileExtensionIsValid(PostedFile))
+                        var DocumentToUpdate = Context.DocumentModel.Where(x => x.Id == Id).SingleOrDefault();
+
+                        if (DocumentToUpdate != null)
                         {
-                            TempData["Error"] = "Arquivo invalido";
-                            return View();
+                            if (PostedFile != null)
+                            {
+                                if (!FileExtensionIsValid(PostedFile))
+                                {
+                                    TempData["Error"] = "Arquivo invalido";
+                                    return View();
+                                }
+
+                                LoadAndSaveDocumentFile(DocumentToUpdate, PostedFile);
+                            }
+
+                            UpdateDocumentData(DocumentToUpdate, Collection);
+                            Context.SaveChanges();
+
+                            TempData["Success"] = "Documento editado!";
+                            return RedirectToAction("Index");
                         }
 
-                        var UploadedFileName = Path.GetFileName(PostedFile.FileName);
-                        var UploadedFileExtension = Path.GetExtension(PostedFile.FileName);
-                        UploadedFileName = UploadedFileName.Trim() + UploadedFileExtension;
-                        var UploadedFilePath = Path.Combine(Server.MapPath("~/App_Data/Files"), UploadedFileName);
-                        PostedFile.SaveAs(UploadedFilePath);
-                        Document.FilePath = UploadedFilePath;
+                        TempData["Error"] = "Documento inexistente!";
+                        return RedirectToAction("Index");
                     }
-                    else
-                    {
-                        Document.FilePath = oldDocument.FilePath;
-                    }
-
-                    documentList.Remove(oldDocument);
-                    documentList.Add(Document);
-
-                    TempData["Success"] = "Documento editado!";
-                    return RedirectToAction("Index");
                 }
                 catch
                 {
@@ -167,24 +160,37 @@ namespace DocumentRegistration.Controllers
         }
 
         // GET: Document/Delete/5
-        public ActionResult Delete(int id)
+        public ActionResult Delete(int Id)
         {
-            var document = documentList.Where(d => d.Id == id).FirstOrDefault();
+            using (var Context = new DocumentContext())
+            {
+                var Document = Context.DocumentModel.Where(x => x.Id == Id).SingleOrDefault();
 
-            return View(document);
+                if (Document == null)
+                {
+                    TempData["Error"] = "Documento inexistente!";
+                    return RedirectToAction("Index");
+                }
+
+                return View(Document);
+            }
         }
 
         // POST: Document/Delete/5
         [HttpPost]
-        public ActionResult Delete(DocumentModel document, FormCollection collection)
+        public ActionResult Delete(DocumentModel Document, long Id)
         {
             try
             {
-                // TODO: Add delete logic here
-                documentList.Remove(document);
+                using (var Context = new DocumentContext())
+                {
+                    var DocumentToDelete = Context.DocumentModel.Where(x => x.Id == Id).SingleOrDefault();
+                    Context.DocumentModel.Remove(DocumentToDelete);
+                    Context.SaveChanges();
 
-                TempData["Success"] = "Documento deletado!";
-                return RedirectToAction("Index");
+                    TempData["Success"] = "Documento deletado!";
+                    return RedirectToAction("Index");
+                }
             }
             catch
             {
@@ -195,16 +201,39 @@ namespace DocumentRegistration.Controllers
 
         public FileResult Download(string FilePath)
         {
-            //var FileVirtualPath = "~/App_Data/Files/" + FileName;
             return File(FilePath, "application/force-download", Path.GetFileName(FilePath));
         }
 
-        public Boolean FileExtensionIsValid(HttpPostedFileBase PostedFile)
+        private Boolean FileExtensionIsValid(HttpPostedFileBase PostedFile)
         {
             var SupportedTypes = new[] { "pdf", "doc", "docx", "xls", "xlsx" };
             var FileExtension = System.IO.Path.GetExtension(PostedFile.FileName).Substring(1);
 
             return SupportedTypes.Contains(FileExtension);
+        }
+
+        public JsonResult VerifyCode(int Code, long ? Id)
+        {
+            return new DocumentContext().DocumentModel.FirstOrDefault(x => x.Code == Code && x.Id != Id) == null
+                ? Json(true, JsonRequestBehavior.AllowGet) : Json(false, JsonRequestBehavior.AllowGet);
+        }
+
+        private void UpdateDocumentData(DocumentModel DocumentToUpdate, FormCollection Collection)
+        {
+            DocumentToUpdate.Code = Int32.Parse(Collection["Code"]);
+            DocumentToUpdate.Title = Collection["Title"];
+            DocumentToUpdate.Process = Collection["Process"];
+            DocumentToUpdate.Category = Collection["Category"];
+        }
+
+        private void LoadAndSaveDocumentFile(DocumentModel Document, HttpPostedFileBase PostedFile)
+        {
+            var UploadedFileName = Path.GetFileName(PostedFile.FileName);
+            var UploadedFileExtension = Path.GetExtension(PostedFile.FileName);
+            UploadedFileName = UploadedFileName.Trim() + UploadedFileExtension;
+            var UploadedFilePath = Path.Combine(Server.MapPath("~/App_Data/Files"), UploadedFileName);
+            PostedFile.SaveAs(UploadedFilePath);
+            Document.FilePath = UploadedFilePath;
         }
     }
 

@@ -52,7 +52,7 @@
         <div class="form-group">
             @Html.LabelFor(model => model.FilePath, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                <input type="file" name="PostedFile" id="PostedFile" required class="InputFile" accept=".pdf, .doc, .xls, .docx, .xlsx"/>
+                <input type="file" name="PostedFile" id="PostedFile" required class="LoadFile" accept=".pdf, .doc, .xls, .docx, .xlsx"/>
             </div>
         </div>
 
@@ -85,7 +85,6 @@
                 for (var j = 0; j < _validFileExtensions.length; j++) {
                     var CurExtension = _validFileExtensions[j];
                     if (FileName.substr(FileName.length - CurExtension.length, CurExtension.length).toLowerCase() == CurExtension.toLowerCase()) {
-
                         Valid = true;
                         break;
                     }

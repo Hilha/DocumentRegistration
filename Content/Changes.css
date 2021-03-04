@@ -2,6 +2,6 @@
     font-size: 1.6rem !important;
 }
 
-.InputFile {
-    max-width: 20% !important;
+.LoadFile {
+    max-width: 35em;
 }

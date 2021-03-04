@@ -4,14 +4,9 @@ namespace DocumentRegistration.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Index()
-        {
-            return View();
-        }
-
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
+            ViewBag.Message = "Sobre a aplicação:";
 
             return View();
         }
