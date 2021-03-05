@@ -13,7 +13,7 @@ namespace DocumentRegistration.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "202103032212539_InitialDb"; }
+            get { return "202103050031347_InitialDb"; }
         }
         
         string IMigrationMetadata.Source

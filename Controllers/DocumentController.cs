@@ -87,12 +87,9 @@ namespace DocumentRegistration.Controllers
                 }
 
             }
-            else
-            {
-                TempData["Error"] = "Formulario inválido.";
-                return View();
-            }
-
+            
+            TempData["Error"] = "Formulario inválido.";
+            return View();
         }
 
         // GET: Document/Edit/5
@@ -212,7 +209,7 @@ namespace DocumentRegistration.Controllers
             return SupportedTypes.Contains(FileExtension);
         }
 
-        public JsonResult VerifyCode(int Code, long ? Id)
+        public JsonResult VerifyCode(string Code, long ? Id)
         {
             return new DocumentContext().DocumentModel.FirstOrDefault(x => x.Code == Code && x.Id != Id) == null
                 ? Json(true, JsonRequestBehavior.AllowGet) : Json(false, JsonRequestBehavior.AllowGet);
@@ -220,7 +217,7 @@ namespace DocumentRegistration.Controllers
 
         private void UpdateDocumentData(DocumentModel DocumentToUpdate, FormCollection Collection)
         {
-            DocumentToUpdate.Code = Int32.Parse(Collection["Code"]);
+            DocumentToUpdate.Code = Collection["Code"];
             DocumentToUpdate.Title = Collection["Title"];
             DocumentToUpdate.Process = Collection["Process"];
             DocumentToUpdate.Category = Collection["Category"];

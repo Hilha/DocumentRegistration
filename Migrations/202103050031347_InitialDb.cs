@@ -2,7 +2,7 @@ namespace DocumentRegistration.Migrations
 {
     using System;
     using System.Data.Entity.Migrations;
-
+    
     public partial class InitialDb : DbMigration
     {
         public override void Up()
@@ -12,15 +12,14 @@ namespace DocumentRegistration.Migrations
                 c => new
                 {
                     Id = c.Long(nullable: false, identity: true),
-                    Code = c.Int(nullable: false),
+                    Code = c.String(nullable: false, maxLength: 200, storeType: "nvarchar"),
                     Title = c.String(nullable: false, unicode: false),
                     Category = c.String(nullable: false, unicode: false),
                     Process = c.String(nullable: false, unicode: false),
                     FilePath = c.String(unicode: false),
                 })
                 .PrimaryKey(t => t.Id);
-            Sql("CREATE index `IX_documentCode` on `Document` (`Code` DESC)");
-            
+                Sql("CREATE index `IX_Code` on `Document` (`Code` DESC)");
         }
         
         public override void Down()

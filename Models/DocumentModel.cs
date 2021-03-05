@@ -1,9 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Web;
-using FluentValidation;
-using DocumentRegistration.DAL;
-using System.Linq;
 using System.Web.Mvc;
 
 namespace DocumentRegistration.Models
@@ -14,11 +11,13 @@ namespace DocumentRegistration.Models
         [Key]
         public long Id { get; set; }
 
-        [Index(IsUnique = true)]
+        [Index("IX_Code", IsUnique = true)]
+        [StringLength(200)]
         [Remote(action: "VerifyCode", controller: "Document", AdditionalFields = "Id", ErrorMessage = "Este codigo ja existe")]
+        [RegularExpression("^[0-9]*$", ErrorMessage = "Apenas numeros")]
         [Required(ErrorMessage = "Campo vazio")]
         [Display(Name = "Código")]
-        public int Code { get; set; }
+        public string Code { get; set; }
 
         [Required(ErrorMessage = "Campo vazio")]
         [Display(Name = "Título")]
